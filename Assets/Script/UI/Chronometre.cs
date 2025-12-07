@@ -1,4 +1,4 @@
-using TMPro;
+ï»¿using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -6,13 +6,13 @@ public class Chronometre : MonoBehaviour
 {
     public static Chronometre Instance { get; private set; }
 
-    [SerializeField, Tooltip("Affichage du chronomètre")]
+    [SerializeField, Tooltip("Affichage du chronomÃ¨tre")]
     private TextMeshProUGUI affichageChrono;
 
-    [SerializeField, Tooltip("Temps initial du chronomètre (souvent 0)")]
+    [SerializeField, Tooltip("Temps initial du chronomÃ¨tre (souvent 0)")]
     private float tempsInitial;
 
-    [SerializeField, Tooltip("Temps restant du chronomètre (sera utilisé comme temps écoulé)")]
+    [SerializeField, Tooltip("Temps restant du chronomÃ¨tre (sera utilisÃ© comme temps Ã©coulÃ©)")]
     private float tempsRestant;
 
     // Un boolean pour savoir si la voiture a demarrer
@@ -20,7 +20,7 @@ public class Chronometre : MonoBehaviour
     // Mettre le chronometre actif ou non
     private bool estActif = false;
 
-    [Header("Actions à la fin du chrono")]
+    [Header("Actions Ã  la fin du chrono")]
     public UnityEvent evenementFinChrono; // Attache des actions dans l'inspecteur
 
     private void Awake()
@@ -37,7 +37,7 @@ public class Chronometre : MonoBehaviour
 
     private void Start()
     {
-        // On démarre avec le temps initial
+        // On dÃ©marre avec le temps initial
         tempsRestant = tempsInitial;
 
         // On affiche le temps au lancement
@@ -58,14 +58,15 @@ public class Chronometre : MonoBehaviour
             affichageChrono.color = Color.red;
         }
 
-        // Limite à 0
+        // Limite Ã  0
         if (tempsRestant <= 0f)
         {
             tempsRestant = 0f;
+            Time.timeScale = 0f;
             estActif = false;
         }
 
-        // Déclenche l'événement Unity
+        // DÃ©clenche l'Ã©vÃ©nement
         evenementFinChrono?.Invoke();
 
         MettreAJourAffichage();
@@ -73,7 +74,7 @@ public class Chronometre : MonoBehaviour
 
 
     /// <summary>
-    /// Lorsque le bolide commence à bouger.
+    /// Lorsque le bolide commence Ã  bouger.
     /// </summary>
     public void DemarrerChrono()
     {
@@ -82,7 +83,7 @@ public class Chronometre : MonoBehaviour
     }
 
     /// <summary>
-    /// Arrête le chronomètre.
+    /// ArrÃªte le chronomÃ¨tre.
     /// </summary>
     public void ArreterChrono()
     {
@@ -90,7 +91,7 @@ public class Chronometre : MonoBehaviour
     }
 
     /// <summary>
-    /// Réinitialise le chronomètre.
+    /// RÃ©initialise le chronomÃ¨tre.
     /// </summary>
     public void ReinitialiserChrono()
     {
@@ -101,6 +102,7 @@ public class Chronometre : MonoBehaviour
         {
             affichageChrono.color = Color.white;
         }
+        Time.timeScale = 1f;
         MettreAJourAffichage();
     }
 
@@ -113,7 +115,7 @@ public class Chronometre : MonoBehaviour
     }
 
     /// <summary>
-    /// Mise à jour de l'affichage au format mm:ss:cc.
+    /// Mise Ã  jour de l'affichage au format mm:ss:cc.
     /// </summary>
     private void MettreAJourAffichage()
     {

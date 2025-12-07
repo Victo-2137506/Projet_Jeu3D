@@ -30,9 +30,6 @@ public class Bolide : MonoBehaviour
 
     [field: SerializeField, Tooltip("Facteur de virage selon la vitesse (x=min, y=max)")]
     public Vector2 FacteurTauxVirage { get; private set; }
-
-
-    public bool peutBouger = true;
     #endregion
 
     #region Variables internes
@@ -115,17 +112,8 @@ public class Bolide : MonoBehaviour
         {
             Chronometre.Instance.DemarrerChrono();
         }
-
-        // Bloque le bolide si le temps est a zero
-        if (!peutBouger) return;
     }
     #endregion
-
-    public void StopBolide()
-    {
-        // Bloque le bolide si le temps est a zero
-        peutBouger = false;
-    }
 
     #region Rotation
     private void Rotation()
@@ -145,4 +133,25 @@ public class Bolide : MonoBehaviour
         );
     }
     #endregion
+
+public IEnumerator AppliquerModificateurVitesseProgressif(float multiplicateur, float duree)
+{
+    float vitesseInitiale = vitesseActuelle;
+    float vitesseCible = Mathf.Clamp(vitesseActuelle * multiplicateur, LimiteVitesse.x, LimiteVitesse.y);
+
+    float temps = 0f;
+    while (temps < duree)
+    {
+        temps += Time.deltaTime;
+        // Interpolation progressive
+        vitesseActuelle = Mathf.Lerp(vitesseInitiale, vitesseCible, temps / duree);
+        yield return null;
+    }
+
+    // Optionnel : retour à la vitesse normale après la durée
+    yield return new WaitForSeconds(1f);
+    vitesseActuelle = Mathf.Clamp(vitesseInitiale, LimiteVitesse.x, LimiteVitesse.y);
+}
+
+
 }
