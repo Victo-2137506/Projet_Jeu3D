@@ -11,7 +11,7 @@ public class ZoneBoost : MonoBehaviour
         Bolide bolide = other.GetComponent<Bolide>();
         if (bolide != null)
         {
-            bolide.StartCoroutine(bolide.AppliquerModificateurVitesseProgressif(multiplicateur, duree));
+            bolide.StartCoroutine(bolide.AppliquerRalentissementProgressif(multiplicateur, duree));
         }
     }
 }

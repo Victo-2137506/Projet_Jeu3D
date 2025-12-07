@@ -30,6 +30,9 @@ public class Bolide : MonoBehaviour
 
     [field: SerializeField, Tooltip("Facteur de virage selon la vitesse (x=min, y=max)")]
     public Vector2 FacteurTauxVirage { get; private set; }
+
+    [SerializeField, Tooltip("Temps perdu en secondes quand on touche une barrière")]
+    private float penaliteTemps = 2f;
     #endregion
 
     #region Variables internes
@@ -134,24 +137,36 @@ public class Bolide : MonoBehaviour
     }
     #endregion
 
-public IEnumerator AppliquerModificateurVitesseProgressif(float multiplicateur, float duree)
-{
-    float vitesseInitiale = vitesseActuelle;
-    float vitesseCible = Mathf.Clamp(vitesseActuelle * multiplicateur, LimiteVitesse.x, LimiteVitesse.y);
-
-    float temps = 0f;
-    while (temps < duree)
+    #region Collisions
+    private void OnTriggerEnter(Collider other)
     {
-        temps += Time.deltaTime;
-        // Interpolation progressive
-        vitesseActuelle = Mathf.Lerp(vitesseInitiale, vitesseCible, temps / duree);
-        yield return null;
+        if (other.CompareTag("Barriere"))
+        {
+            if (Chronometre.Instance != null)
+            {
+                Chronometre.Instance.RetirerTemps(penaliteTemps);
+            }
+        }
     }
+    #endregion
 
-    // Optionnel : retour à la vitesse normale après la durée
-    yield return new WaitForSeconds(1f);
-    vitesseActuelle = Mathf.Clamp(vitesseInitiale, LimiteVitesse.x, LimiteVitesse.y);
-}
+    public IEnumerator AppliquerRalentissementProgressif(float multiplicateur, float duree)
+    {
+        // On part de la vitesse actuelle
+        float vitesseInitiale = vitesseActuelle;
+        // La cible est une vitesse réduite
+        float vitesseCible = Mathf.Clamp(vitesseActuelle * multiplicateur, LimiteVitesse.x, LimiteVitesse.y);
 
+        float temps = 0f;
+        while (temps < duree)
+        {
+            temps += Time.deltaTime;
+            // Interpolation progressive vers la vitesse réduite
+            vitesseActuelle = Mathf.Lerp(vitesseInitiale, vitesseCible, temps / duree);
+            yield return null;
+        }
 
+        // On reste à la vitesse réduite (pas de retour automatique)
+        vitesseActuelle = vitesseCible;
+    }
 }

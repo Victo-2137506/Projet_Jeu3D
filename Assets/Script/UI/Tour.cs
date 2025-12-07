@@ -37,8 +37,6 @@ public class Tour : MonoBehaviour
         }
     }
 
-
-
     private void MettreAJourTexte()
     {
         if (TexteTours != null)

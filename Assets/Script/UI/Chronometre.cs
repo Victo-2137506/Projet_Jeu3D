@@ -113,6 +113,19 @@ public class Chronometre : MonoBehaviour
     {
         return tempsRestant;
     }
+    /// <summary>
+    /// Retire du temps quand il touche une barriere.
+    /// </summary>
+    /// <param name="penalite"></param>
+    public void RetirerTemps(float penalite)
+    {
+        tempsRestant -= penalite;
+        if (tempsRestant < 0f)
+            tempsRestant = 0f;
+
+        MettreAJourAffichage();
+    }
+
 
     /// <summary>
     /// Mise à jour de l'affichage au format mm:ss:cc.

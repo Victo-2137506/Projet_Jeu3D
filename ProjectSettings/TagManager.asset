@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Vitesse
   - Ralentissement
+  - Barriere
   layers:
   - Default
   - TransparentFX
