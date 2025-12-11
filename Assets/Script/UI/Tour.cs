@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using TMPro;
-using Unity.VisualScripting.FullSerializer;
+using UnityEngine.Events;
 
 /// <summary>
-/// Gère le nombre de tours actuels et met à jour l'affichage.
+/// Script qui gère le nombre de tours actuels et met à jour l'affichage.
+/// Suggestion de Claude IA 
 /// </summary>
 public class Tour : MonoBehaviour
 {
@@ -15,15 +16,28 @@ public class Tour : MonoBehaviour
 
     public int ToursActuels { get; private set; }
 
+    [SerializeField, Tooltip("Gestion des écrans pour la fin de partie.")]
+    private GestionFinDePartie gestion;
+
+    [Header("Événements")]
+    [Tooltip("Déclenché chaque fois qu'un tour est complété")]
+    public UnityEvent evenementFinDeTour;
+
     private void Start()
     {
         MettreAJourTexte();
     }
 
+    /// <summary>
+    /// Incrémente le tour
+    /// </summary>
     public void IncrementerTour()
     {
         ToursActuels++;
         MettreAJourTexte();
+
+        // Déclenche l'événement
+        evenementFinDeTour?.Invoke();
 
         // Quand il atteint le dernier tour (ex: 3/3)
         if (ToursActuels == ToursTotal)
@@ -31,6 +45,7 @@ public class Tour : MonoBehaviour
             MessageTour.Instance.AfficherMessage();
         }
 
+        // Victoire
         if (ToursActuels > ToursTotal)
         {
             ArreterTemps();
@@ -47,5 +62,7 @@ public class Tour : MonoBehaviour
     {
         Debug.Log("Temps arrêté !");
         Time.timeScale = 0f;
+        if (gestion != null)
+            gestion.AfficherVictoire();
     }
 }

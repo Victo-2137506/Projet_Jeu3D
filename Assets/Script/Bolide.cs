@@ -1,44 +1,47 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Script de contrôle pour un véhicule de course (bolide) :
-/// accélération, freinage, rotation dépendante de la vitesse.
+/// Script de contrÃ´le pour le bolide.
+/// Code inspirÃ© du deuxiÃ¨me examen, livreur de pizza.
 /// </summary>
 public class Bolide : MonoBehaviour
 {
-    #region Paramètres du véhicule
-    [Header("Paramètres de déplacement")]
-    [field: SerializeField, Tooltip("Limite de vitesse min/max du bolide (négative = reculons)")]
+    #region ParamÃ¨tres du vÃ©hicule
+    [Header("ParamÃ¨tres de dÃ©placement")]
+    [field: SerializeField, Tooltip("Limite de vitesse min/max du bolide (nÃ©gative = reculons)")]
     public Vector2 LimiteVitesse { get; private set; }
 
-    [field: SerializeField, Tooltip("Accélération en avant")]
+    [field: SerializeField, Tooltip("AccÃ©lÃ©ration en avant")]
     public float Acceleration { get; private set; }
 
-    [field: SerializeField, Tooltip("Accélération en reculons")]
+    [field: SerializeField, Tooltip("AccÃ©lÃ©ration en reculons")]
     public float AccelerationReculons { get; private set; }
 
-    [field: SerializeField, Tooltip("Friction appliquée lorsque non accélérant")]
+    [field: SerializeField, Tooltip("Friction appliquÃ©e lorsque non accÃ©lÃ©rant")]
     public float AccelerationFriction { get; private set; }
 
-    [field: SerializeField, Tooltip("Force de freinage lorsqu’on appuie en arrière")]
+    [field: SerializeField, Tooltip("Force de freinage lorsqu'on appuie en arriÃ¨re")]
     public float Freinage { get; private set; }
 
-    [field: SerializeField, Tooltip("Vitesse de rotation du véhicule")]
+    [field: SerializeField, Tooltip("Vitesse de rotation du vÃ©hicule")]
     public float VitesseVirage { get; private set; }
 
     [field: SerializeField, Tooltip("Facteur de virage selon la vitesse (x=min, y=max)")]
     public Vector2 FacteurTauxVirage { get; private set; }
 
-    [SerializeField, Tooltip("Temps perdu en secondes quand on touche une barrière")]
+    [SerializeField, Tooltip("Temps perdu en secondes quand on touche une barriÃ¨re")]
     private float penaliteTemps = 2f;
     #endregion
 
-    #region Variables internes
+    public UnityEvent evenementCollisionBarriere;
+
     private Vector2 controles;
     private float vitesseActuelle;
-    #endregion
+    private float dernierTempsCollision = -999f;
+    private float delaiCollision = 3f;
 
     private void Awake()
     {
@@ -54,7 +57,7 @@ public class Bolide : MonoBehaviour
 
     #region Gestion input
     /// <summary>
-    /// Reçoit les entrées du joueur (Input System).
+    /// Recoit les entrÃ©es du joueur
     /// </summary>
     public void OnDeplacement(InputAction.CallbackContext contexte)
     {
@@ -62,12 +65,12 @@ public class Bolide : MonoBehaviour
     }
     #endregion
 
-    #region Déplacement
+    #region DÃ©placement
     private void Deplacement()
     {
         float inputAvantArriere = controles.y;
 
-        // --- ACCÉLÉRATION ---
+        // --- ACCÃ‰LÃ‰RATION ---
         if (inputAvantArriere > 0f)
         {
             vitesseActuelle += Acceleration * Time.deltaTime;
@@ -100,17 +103,17 @@ public class Bolide : MonoBehaviour
         // Clamp vitesse
         vitesseActuelle = Mathf.Clamp(vitesseActuelle, LimiteVitesse.x, LimiteVitesse.y);
 
-        // Petites vitesses = arrêt
+        // Si il a une petite vitesse il s'arrÃªte
         if (Mathf.Abs(vitesseActuelle) < 0.01f)
             vitesseActuelle = 0f;
 
-        // Déplacement
+        // DÃ©placement
         transform.position += transform.forward * vitesseActuelle * Time.deltaTime;
 
-        // Si le chronomètre n'existe pas
+        // Si le chronomÃ¨tre n'existe pas
         if (!Chronometre.Instance) return;
 
-        // Dès que le véhicule bouge lance le chronomètre
+        // DÃ¨s que le bolide bouge lance le chronomÃ¨tre
         if (vitesseActuelle != 0f)
         {
             Chronometre.Instance.DemarrerChrono();
@@ -126,7 +129,7 @@ public class Bolide : MonoBehaviour
 
         float inputRotation = controles.x;
 
-        // Facteur de virage selon la vitesse (version plus stable)
+        // Facteur de virage selon la vitesse
         float t = Mathf.InverseLerp(0f, LimiteVitesse.y, Mathf.Abs(vitesseActuelle));
         float facteurVirage = Mathf.Lerp(FacteurTauxVirage.x, FacteurTauxVirage.y, t);
 
@@ -138,35 +141,43 @@ public class Bolide : MonoBehaviour
     #endregion
 
     #region Collisions
-    private void OnTriggerEnter(Collider other)
+    // GÃ¨re les collision contre les barriÃ¨res pour avoir une pÃ©nalitÃ© de temps ( - 2 secondes)
+    // Suggestion de Claude IA pour un temps de rÃ©cupÃ©ration aprÃ¨s une pÃ©nalitÃ©
+    private void OnCollisionEnter(Collision collision)
     {
-        if (other.CompareTag("Barriere"))
+        if (collision.collider.CompareTag("Barriere"))
         {
-            if (Chronometre.Instance != null)
+            // VÃ©rifie si assez de temps s'est Ã©coulÃ© depuis la derniÃ¨re collision
+            if (Time.time - dernierTempsCollision >= delaiCollision)
             {
-                Chronometre.Instance.RetirerTemps(penaliteTemps);
+                if (Chronometre.Instance != null)
+                {
+                    Chronometre.Instance.RetirerTemps(penaliteTemps);
+                }
+
+                // ArrÃªte le bolide
+                vitesseActuelle = 0f;
+
+                evenementCollisionBarriere?.Invoke();
+
+                // Enregistre le moment de cette collision
+                dernierTempsCollision = Time.time;
             }
         }
     }
     #endregion
 
-    public IEnumerator AppliquerRalentissementProgressif(float multiplicateur, float duree)
+    public IEnumerator AppliquerRalentissement(float multiplicateur, float duree)
     {
-        // On part de la vitesse actuelle
-        float vitesseInitiale = vitesseActuelle;
-        // La cible est une vitesse réduite
-        float vitesseCible = Mathf.Clamp(vitesseActuelle * multiplicateur, LimiteVitesse.x, LimiteVitesse.y);
+        float vitesseOriginale = vitesseActuelle;
 
-        float temps = 0f;
-        while (temps < duree)
-        {
-            temps += Time.deltaTime;
-            // Interpolation progressive vers la vitesse réduite
-            vitesseActuelle = Mathf.Lerp(vitesseInitiale, vitesseCible, temps / duree);
-            yield return null;
-        }
+        // Applique le multiplicateur
+        vitesseActuelle *= multiplicateur;
 
-        // On reste à la vitesse réduite (pas de retour automatique)
-        vitesseActuelle = vitesseCible;
+        // Attendre la durÃ©e
+        yield return new WaitForSeconds(duree);
+
+        // Retour Ã  la vitesse normale
+        vitesseActuelle = Mathf.Clamp(vitesseOriginale, LimiteVitesse.x, LimiteVitesse.y);
     }
 }

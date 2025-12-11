@@ -11,12 +11,11 @@ GameObject:
   - component: {fileID: 6313248730693639594}
   - component: {fileID: 1222111936321063933}
   - component: {fileID: 9106101148379471763}
-  - component: {fileID: 3685713654627655152}
   - component: {fileID: 273946714885952824}
-  - component: {fileID: 8450719576820757291}
+  - component: {fileID: 9017652651706939284}
   m_Layer: 0
   m_Name: BoostRalentissement
-  m_TagString: Untagged
+  m_TagString: Ralentissement
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -31,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -2.2, y: 0.1, z: 25.68}
-  m_LocalScale: {x: 0.27304313, y: 1, z: 0.35417202}
+  m_LocalScale: {x: 0.27304313, y: 1, z: 0.354172}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3017260090402691132}
@@ -93,28 +92,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &3685713654627655152
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3811423652299963109}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!65 &273946714885952824
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -136,7 +113,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10.000002, y: 0, z: 10.000003}
   m_Center: {x: 0, y: 1.110223e-16, z: 0}
---- !u!114 &8450719576820757291
+--- !u!114 &9017652651706939284
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -192,7 +169,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 0
-  m_Color: {r: 0.9056604, g: 0.6357039, b: 0, a: 1}
+  m_Color: {r: 0.8773585, g: 0.1448469, b: 0.20720541, a: 1}
   m_Intensity: 12
   m_Range: 10
   m_SpotAngle: 32

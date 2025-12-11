@@ -2,6 +2,10 @@
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// Script pour l'affichage du message de fin de tour.
+/// Code inspiré du demo-rpg.
+/// </summary>
 public class MessageTour : MonoBehaviour
 {
     public static MessageTour Instance { get; private set; }
@@ -13,6 +17,8 @@ public class MessageTour : MonoBehaviour
     [SerializeField] private TextMeshProUGUI texteMessage;
     [SerializeField] private GameObject conteneurMessage;
     [SerializeField] private Animator animator;
+    [SerializeField] private DefilementTexte defilement;
+
 
     private void Awake()
     {
@@ -21,7 +27,7 @@ public class MessageTour : MonoBehaviour
     }
 
     /// <summary>
-    /// Affiche le texte déjà défini dans l’inspecteur (texteMessage.text).
+    /// Affiche le texte
     /// </summary>
     public void AfficherMessage()
     {
@@ -30,17 +36,27 @@ public class MessageTour : MonoBehaviour
 
         conteneurMessage.SetActive(true);
         animator.SetTrigger("Apparition");
+        defilement.ActiverDefilement();
 
-        routineAffichage = StartCoroutine(CacherApresDelai());
+        routineAffichage = StartCoroutine(CacherMessage());
     }
 
-    private IEnumerator CacherApresDelai()
+    /// <summary>
+    /// Cache le texte après un certain délais
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator CacherMessage()
     {
         yield return new WaitForSeconds(dureeMessage);
         animator.SetTrigger("Disparition");
         routineAffichage = null;
+        defilement.DesactiverDefilement();
+
     }
 
+    /// <summary>
+    /// Met fin à l'animation
+    /// </summary>
     public void FinAnimation()
     {
         conteneurMessage.SetActive(false);

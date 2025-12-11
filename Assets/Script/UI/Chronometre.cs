@@ -1,27 +1,37 @@
-﻿using TMPro;
+﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// Script pour le chronomètre
+/// Code inspiré du deuxième examen, livreur de pizza
+/// </summary>
 public class Chronometre : MonoBehaviour
 {
+    // Singleton Chronometre
     public static Chronometre Instance { get; private set; }
+
+    // Appele le ScriptableObject du chronomètre
+    [SerializeField, Tooltip("Configuration du chronomètre")]
+    private ConfigChrono configuration;
 
     [SerializeField, Tooltip("Affichage du chronomètre")]
     private TextMeshProUGUI affichageChrono;
 
-    [SerializeField, Tooltip("Temps initial du chronomètre (souvent 0)")]
-    private float tempsInitial;
+    [SerializeField, Tooltip("Gestion des écrans pour la fin de partie.")]
+    private GestionFinDePartie gestion;
 
-    [SerializeField, Tooltip("Temps restant du chronomètre (sera utilisé comme temps écoulé)")]
+    [SerializeField, Tooltip("Vitesse du clignotement")]
+    private float vitesseClignotement = 2f;
+
+    [SerializeField, Tooltip("Temps restant du chronomètre")]
     private float tempsRestant;
 
-    // Un boolean pour savoir si la voiture a demarrer
     private bool demarreBolide = false;
-    // Mettre le chronometre actif ou non
     private bool estActif = false;
 
-    [Header("Actions à la fin du chrono")]
-    public UnityEvent evenementFinChrono; // Attache des actions dans l'inspecteur
+    private Coroutine routineClignotement;
 
     private void Awake()
     {
@@ -37,8 +47,19 @@ public class Chronometre : MonoBehaviour
 
     private void Start()
     {
+        if (configuration == null)
+        {
+            Debug.LogError("Aucune configuration de chronomètre assignée !");
+            return;
+        }
+
         // On démarre avec le temps initial
-        tempsRestant = tempsInitial;
+        tempsRestant = configuration.TempsInitial;
+
+        if (affichageChrono != null)
+        {
+            affichageChrono.color = configuration.CouleurNormale;
+        }
 
         // On affiche le temps au lancement
         MettreAJourAffichage();
@@ -46,32 +67,58 @@ public class Chronometre : MonoBehaviour
 
     private void Update()
     {
-        if (!estActif || !demarreBolide)
+        if (!estActif || !demarreBolide || configuration == null)
             return;
 
         // Diminution du temps
         tempsRestant -= Time.deltaTime;
 
-        // Si moins de 10 secondes, on change la couleur du texte en rouge
-        if (tempsRestant <= 10f && affichageChrono.color != Color.red)
+        // Si moins du seuil d'alerte, on démarre le clignotement
+        if (tempsRestant <= configuration.DerniereSeconde && routineClignotement == null)
         {
-            affichageChrono.color = Color.red;
+            routineClignotement = StartCoroutine(ClignoterTexte());
         }
 
         // Limite à 0
         if (tempsRestant <= 0f)
         {
             tempsRestant = 0f;
-            Time.timeScale = 0f;
             estActif = false;
-        }
 
-        // Déclenche l'événement
-        evenementFinChrono?.Invoke();
+            if (routineClignotement != null)
+            {
+                StopCoroutine(routineClignotement);
+                routineClignotement = null;
+            }
+
+            if (gestion != null)
+                gestion.AfficherDefaite();
+
+            Time.timeScale = 0f;
+        }
 
         MettreAJourAffichage();
     }
 
+    /// <summary>
+    /// Permet de faire le clignotement du chrnomètre quand il arrive à 10 secondes.
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator ClignoterTexte()
+    {
+        if (affichageChrono == null || configuration == null)
+            yield break;
+
+        float temps = 0f;
+
+        while (true)
+        {
+            temps += Time.deltaTime * vitesseClignotement;
+            float clignotement = Mathf.PingPong(temps, 1f); // Mathf.PingPong est suggérer par Claude IA
+            affichageChrono.color = Color.Lerp(configuration.CouleurNormale, configuration.CouleurAlerte, clignotement);
+            yield return null;
+        }
+    }
 
     /// <summary>
     /// Lorsque le bolide commence à bouger.
@@ -88,22 +135,12 @@ public class Chronometre : MonoBehaviour
     public void ArreterChrono()
     {
         estActif = false;
-    }
 
-    /// <summary>
-    /// Réinitialise le chronomètre.
-    /// </summary>
-    public void ReinitialiserChrono()
-    {
-        tempsRestant = tempsInitial;
-        estActif = false ;
-        demarreBolide = false ;
-        if(affichageChrono != null)
+        if (routineClignotement != null)
         {
-            affichageChrono.color = Color.white;
+            StopCoroutine(routineClignotement);
+            routineClignotement = null;
         }
-        Time.timeScale = 1f;
-        MettreAJourAffichage();
     }
 
     /// <summary>
@@ -113,6 +150,7 @@ public class Chronometre : MonoBehaviour
     {
         return tempsRestant;
     }
+
     /// <summary>
     /// Retire du temps quand il touche une barriere.
     /// </summary>
@@ -122,10 +160,8 @@ public class Chronometre : MonoBehaviour
         tempsRestant -= penalite;
         if (tempsRestant < 0f)
             tempsRestant = 0f;
-
         MettreAJourAffichage();
     }
-
 
     /// <summary>
     /// Mise à jour de l'affichage au format mm:ss:cc.
@@ -136,10 +172,9 @@ public class Chronometre : MonoBehaviour
         int secondes = Mathf.FloorToInt(tempsRestant % 60f);
         int centiemes = Mathf.FloorToInt((tempsRestant * 100f) % 100f);
 
-        if(affichageChrono != null)
+        if (affichageChrono != null)
         {
             affichageChrono.text = $"{minutes:00}:{secondes:00}:{centiemes:00}";
         }
-
     }
 }

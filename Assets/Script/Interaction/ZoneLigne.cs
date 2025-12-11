@@ -1,11 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// Zone qui détecte le passage d'un bolide et incrémente le compteur de tours.
+/// Script pour les zones qui détecte le passage du bolide et incrémente le compteur de tours.
 /// </summary>
 public class ZoneLigne : MonoBehaviour
 {
-    [field: SerializeField, Tooltip("Gestionnaire qui s'occupe du nombre de tours.")]
+    [field: SerializeField]
     public Tour Tour { get; private set; }
 
     /// <summary>

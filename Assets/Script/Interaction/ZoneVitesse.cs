@@ -1,17 +1,34 @@
+
 using UnityEngine;
 
-public class ZoneBoost : MonoBehaviour
+/// <summary>
+/// Script pour les zones de ralentissement.
+/// </summary>
+public class ZoneVitesse : MonoBehaviour
 {
-    [Header("Paramètres de la zone")]
-    public float multiplicateur = 2f;   // >1 = boost, <1 = ralentissement
-    public float duree = 2f;
+    // Appele la configuration de ralentissement
+    [SerializeField, Tooltip("Configuration du ralentissement à appliquer")]
+    private Ralentissement configuration;
 
+    /// <summary>
+    /// Quand le bolide passe dessus, il applique le ralentissement
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerEnter(Collider other)
     {
+        if (configuration == null)
+        {
+            Debug.LogWarning("Aucune configuration de ralentissement assignée");
+            return;
+        }
+
         Bolide bolide = other.GetComponent<Bolide>();
         if (bolide != null)
         {
-            bolide.StartCoroutine(bolide.AppliquerRalentissementProgressif(multiplicateur, duree));
+            bolide.StartCoroutine(bolide.AppliquerRalentissement(
+                configuration.Multiplicateur,
+                configuration.Duree
+            ));
         }
     }
 }
