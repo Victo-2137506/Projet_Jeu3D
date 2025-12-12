@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 93c5068daca977542a09e5fbfbbd5e34, type: 3}
-  m_Name: Ralentissement
-  m_EditorClassIdentifier: Assembly-CSharp::ConfigurationRalentissement
+  m_Name: RalentissementDifficile
+  m_EditorClassIdentifier: Assembly-CSharp::Ralentissement
   multiplicateur: 0.5
   duree: 2

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad2fa9b8464684a44a3e31a20d9b856f, type: 3}
-  m_Name: ConfigChronometre
+  m_Name: ConfigChronoFacile
   m_EditorClassIdentifier: Assembly-CSharp::ConfigurationChronometre
-  tempsInitial: 120
-  penaliteBarriere: 2
-  seuilAlerte: 10
+  tempsInitial: 140
+  penaliteBarriere: 1
+  derniereSeconde: 10
   couleurNormale: {r: 1, g: 1, b: 1, a: 1}
   couleurAlerte: {r: 1, g: 0, b: 0, a: 1}

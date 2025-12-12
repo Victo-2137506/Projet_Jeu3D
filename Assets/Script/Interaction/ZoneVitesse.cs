@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 /// <summary>
@@ -7,28 +6,26 @@ using UnityEngine;
 public class ZoneVitesse : MonoBehaviour
 {
     // Appele la configuration de ralentissement
-    [SerializeField, Tooltip("Configuration du ralentissement à appliquer")]
+    [SerializeField]
     private Ralentissement configuration;
 
-    /// <summary>
-    /// Quand le bolide passe dessus, il applique le ralentissement
-    /// </summary>
-    /// <param name="other"></param>
-    private void OnTriggerEnter(Collider other)
+/// <summary>
+/// Quand le bolide passe dessus, il applique le ralentissement
+/// </summary>
+/// <param name="other"></param>
+private void OnTriggerEnter(Collider other)
+{
+    Ralentissement configRalentissement = MenuDifficulte.Instance.Ralentissement;
+    
+    // Vérification de la présence du composant Bolide
+    Bolide bolide = other.GetComponent<Bolide>();
+    if (bolide != null)
     {
-        if (configuration == null)
-        {
-            Debug.LogWarning("Aucune configuration de ralentissement assignée");
-            return;
-        }
-
-        Bolide bolide = other.GetComponent<Bolide>();
-        if (bolide != null)
-        {
-            bolide.StartCoroutine(bolide.AppliquerRalentissement(
-                configuration.Multiplicateur,
-                configuration.Duree
-            ));
-        }
+        // L'appel à la coroutine du Bolide
+        bolide.StartCoroutine(bolide.AppliquerRalentissement(
+            configRalentissement.Multiplicateur,
+            configRalentissement.Duree
+        ));
     }
+}
 }

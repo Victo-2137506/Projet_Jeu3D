@@ -33,15 +33,20 @@ public class Bolide : MonoBehaviour
     public Vector2 FacteurTauxVirage { get; private set; }
 
     [SerializeField, Tooltip("Temps perdu en secondes quand on touche une barrière")]
-    private float penaliteTemps = 2f;
+    private float penaliteTemps;
     #endregion
 
     public UnityEvent evenementCollisionBarriere;
 
     private Vector2 controles;
     private float vitesseActuelle;
+
+    // Généré par Claude IA. (2025). https://claude.ai/
+
     private float dernierTempsCollision = -999f;
     private float delaiCollision = 3f;
+
+    // Fin du code généré
 
     private void Awake()
     {
@@ -141,8 +146,8 @@ public class Bolide : MonoBehaviour
     #endregion
 
     #region Collisions
-    // Gère les collision contre les barrières pour avoir une pénalité de temps ( - 2 secondes)
-    // Suggestion de Claude IA pour un temps de récupération après une pénalité
+    // Gère les collision contre les barrières pour avoir une pénalité de temps
+    // Suggestion d'un ami pour un temps de récupération après une pénalité puis code inspiré de Claude AI
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.CompareTag("Barriere"))
@@ -150,9 +155,13 @@ public class Bolide : MonoBehaviour
             // Vérifie si assez de temps s'est écoulé depuis la dernière collision
             if (Time.time - dernierTempsCollision >= delaiCollision)
             {
-                if (Chronometre.Instance != null)
+                // On récupère la configuration du chronomètre
+                ConfigChrono config = MenuDifficulte.Instance.ConfigChrono;
+
+                if (config != null && Chronometre.Instance != null)
                 {
-                    Chronometre.Instance.RetirerTemps(penaliteTemps);
+                    // Utilise la pénalité lue de la configuration
+                    Chronometre.Instance.RetirerTemps(config.PenaliteBarriere);
                 }
 
                 // Arrête le bolide
@@ -166,7 +175,12 @@ public class Bolide : MonoBehaviour
         }
     }
     #endregion
-
+    /// <summary>
+    /// Applique l'effet de ralentissement
+    /// </summary>
+    /// <param name="multiplicateur">Multiplicateur de ralentissement (0.5f)</param>
+    /// <param name="duree">Durée du ralentissement</param>
+    /// <returns></returns>
     public IEnumerator AppliquerRalentissement(float multiplicateur, float duree)
     {
         float vitesseOriginale = vitesseActuelle;
@@ -174,10 +188,9 @@ public class Bolide : MonoBehaviour
         // Applique le multiplicateur
         vitesseActuelle *= multiplicateur;
 
-        // Attendre la durée
         yield return new WaitForSeconds(duree);
 
-        // Retour à la vitesse normale
+        // Retour à la vitesse normale (le default est que la vitesse normale revient d'un coup)
         vitesseActuelle = Mathf.Clamp(vitesseOriginale, LimiteVitesse.x, LimiteVitesse.y);
     }
 }

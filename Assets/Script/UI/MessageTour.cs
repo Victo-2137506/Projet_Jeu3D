@@ -10,7 +10,7 @@ public class MessageTour : MonoBehaviour
 {
     public static MessageTour Instance { get; private set; }
 
-    private float dureeMessage = 4f;
+    private float dureeMessage = 3f;
     private Coroutine routineAffichage;
 
     [Header("Référence UI")]

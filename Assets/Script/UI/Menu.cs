@@ -2,7 +2,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Script de gestion du menu 
+/// Script de gestion du menu
+/// Inspiré du projet demo-rpg
 /// </summary>
 public class Menu : MonoBehaviour
 {
